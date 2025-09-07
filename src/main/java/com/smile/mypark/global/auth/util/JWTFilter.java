@@ -1,0 +1,93 @@
+package com.smile.mypark.global.auth.util;
+
+import static com.smile.mypark.global.auth.util.CookieUtil.*;
+
+import java.io.IOException;
+import java.util.Map;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.smile.mypark.domain.user.dto.request.UserDTO;
+import com.smile.mypark.domain.user.entity.User;
+import com.smile.mypark.domain.user.repository.UserRepository;
+import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
+import com.smile.mypark.global.apipayload.exception.GeneralException;
+import com.smile.mypark.global.auth.dto.CustomOAuth2User;
+import com.smile.mypark.global.constants.Constants;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class JWTFilter extends OncePerRequestFilter {
+
+	private final JWTUtil jwtUtil;
+	private final UserRepository userRepository;
+
+	private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String uri = request.getRequestURI();
+		return Constants.NO_NEED_FILTER_URLS.stream()
+			.anyMatch(pattern -> pathMatcher.match(pattern, uri));
+	}
+
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+		FilterChain filterChain) throws ServletException, IOException {
+
+		Map<String, String> tokens = extractTokensFromCookie(request);
+
+		if (tokens.isEmpty() || tokens.get("refreshToken") == null) {
+			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_NOT_EXISTS);
+			return;
+		}
+
+		if (tokens.get("accessToken") == null) {
+			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_EXPIRED);
+			return;
+		}
+
+		if (jwtUtil.isExpired(tokens.get("accessToken"))) {
+			if (request.getRequestURI().equals("/api/v1/oauth/reissue")) {
+				authenticateUser(tokens.get("refreshToken"));
+				filterChain.doFilter(request, response);
+				return;
+			}
+
+			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_EXPIRED);
+			return;
+		}
+
+		authenticateUser(tokens.get("accessToken"));
+		filterChain.doFilter(request, response);
+	}
+
+	private void authenticateUser(String token) {
+		String providerId = jwtUtil.getProviderId(token);
+
+		User user = userRepository.findByProviderId(providerId)
+			.orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+
+		UserDTO userDTO = UserDTO.builder()
+			.id(user.getId())
+			.name(user.getName())
+			.email(user.getEmail())
+			.providerId(providerId)
+			.build();
+
+		CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+		Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null,
+			customOAuth2User.getAuthorities());
+
+		SecurityContextHolder.getContext().setAuthentication(authToken);
+	}
+}

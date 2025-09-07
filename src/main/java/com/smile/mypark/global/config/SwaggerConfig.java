@@ -1,21 +1,34 @@
 package com.smile.mypark.global.config;
 
+import org.springdoc.core.utils.SpringDocUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.smile.mypark.global.annotation.AuthUser;
+
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 
 @Configuration
 public class SwaggerConfig {
 
+	@Value("${app.url}")
+	private String url;
+
+	static {
+		SpringDocUtils.getConfig().addAnnotationsToIgnore(AuthUser.class);
+	}
+
 	@Bean
 	public OpenAPI openAPI() {
-		Info info = new Info()
-			.version("v1.0")
-			.title("MyPark API")
-			.description("MyPark Project API");
+		Server server = new Server()
+			.url(url)
+			.description("server");
+
 		return new OpenAPI()
-			.info(info);
+			.info(new Info().title("MyPark API").version("1.0"))
+			.addServersItem(server);
 	}
 }

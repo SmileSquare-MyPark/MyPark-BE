@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.5'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.cloud.tools.jib' version '3.4.4'
 }
 
 group = 'com.smile'
@@ -45,4 +46,23 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jib {
+	from {
+		image = 'openjdk:17'
+		platforms {
+			platform {
+				architecture = 'amd64'
+				os = 'linux'
+			}
+		}
+	}
+	to {
+		image = 'hangunhee39/mypark:latest'
+	}
+	container {
+		environment = [ 'TZ': 'Asia/Seoul' ]
+		jvmFlags = ['-Duser.timezone=Asia/Seoul']
+	}
 }

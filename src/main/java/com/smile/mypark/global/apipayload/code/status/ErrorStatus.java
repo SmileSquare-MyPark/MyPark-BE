@@ -21,7 +21,12 @@ public enum ErrorStatus implements BaseErrorCode {
 	_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH4000", "인증되지 않은 사용자입니다. 로그인 후 다시 시도해주세요."),
 
 	_TOKEN_NOT_EXISTS(HttpStatus.UNAUTHORIZED, "AUTH4000", "토큰이 존재하지 않습니다. 로그인 후 다시 시도해주세요."),
-	_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH4001", "토큰이 만료되었습니다. 로그인 후 다시 시도해주세요.");
+	_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH4001", "토큰이 만료되었습니다. 로그인 후 다시 시도해주세요."),
+
+	_SMS_ALREADY_SEND(HttpStatus.BAD_REQUEST, "SMS4001", "이미 인증 코드가 발송되었습니다."),
+	_SMS_CERTIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "SMS4002", "인증 코드가 만료되었습니다."),
+	_SMS_CERTIFICATION_MISMATCH(HttpStatus.BAD_REQUEST, "SMS4003", "인증 코드가 일치하지 않습니다."),
+	_SMS_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "SMS5001", "SMS 전송에 실패했습니다."),;
 
 	private final HttpStatus httpStatus;
 	private final String code;

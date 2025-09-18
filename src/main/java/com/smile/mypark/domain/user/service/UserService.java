@@ -1,11 +1,15 @@
 package com.smile.mypark.domain.user.service;
 
 import com.smile.mypark.domain.user.dto.request.CreateUserRequestDTO;
+import com.smile.mypark.domain.user.dto.request.LoginRequestDTO;
 import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
-import com.smile.mypark.domain.user.entity.User;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
-	User createUser(CreateUserRequestDTO request);
+	void createUser(CreateUserRequestDTO request);
+
+	void login(LoginRequestDTO request, HttpServletResponse response);
 
 	UserResponseDTO getUser(Long idx);
 }

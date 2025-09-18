@@ -54,11 +54,11 @@ public class JWTFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		authenticateUser(tokens.get("accessToken"), response);
+		authenticateUser(tokens.get("accessToken"));
 		filterChain.doFilter(request, response);
 	}
 
-	private void authenticateUser(String token, HttpServletResponse response) {
+	private void authenticateUser(String token) {
 		String providerId = jwtUtil.getProviderId(token);
 
 		User user = userRepository.findByuIdx(Long.valueOf(providerId)).orElse(null);

@@ -8,4 +8,10 @@ import com.smile.mypark.domain.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByuIdx(Long uIdx);
+
+	Optional<User> findByuId(String uId);
+
+	Optional<User> findByIdx(Long idx);
+
+	boolean existsByuId(String uId);
 }

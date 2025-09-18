@@ -14,8 +14,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.smile.mypark.domain.user.dto.request.UserDTO;
 import com.smile.mypark.domain.user.entity.User;
 import com.smile.mypark.domain.user.repository.UserRepository;
-import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
-import com.smile.mypark.global.apipayload.exception.GeneralException;
 import com.smile.mypark.global.auth.dto.CustomOAuth2User;
 import com.smile.mypark.global.constants.Constants;
 
@@ -47,47 +45,37 @@ public class JWTFilter extends OncePerRequestFilter {
 		Map<String, String> tokens = extractTokensFromCookie(request);
 
 		if (tokens.isEmpty() || tokens.get("refreshToken") == null) {
-			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_NOT_EXISTS);
+			filterChain.doFilter(request, response);
 			return;
 		}
 
-		if (tokens.get("accessToken") == null) {
-			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_EXPIRED);
+		if (tokens.get("accessToken") == null || jwtUtil.isExpired(tokens.get("accessToken"))) {
+			filterChain.doFilter(request, response);
 			return;
 		}
 
-		if (jwtUtil.isExpired(tokens.get("accessToken"))) {
-			if (request.getRequestURI().equals("/api/v1/oauth/reissue")) {
-				authenticateUser(tokens.get("refreshToken"));
-				filterChain.doFilter(request, response);
-				return;
-			}
-
-			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._TOKEN_EXPIRED);
-			return;
-		}
-
-		authenticateUser(tokens.get("accessToken"));
+		authenticateUser(tokens.get("accessToken"), response);
 		filterChain.doFilter(request, response);
 	}
 
-	private void authenticateUser(String token) {
+	private void authenticateUser(String token, HttpServletResponse response) {
 		String providerId = jwtUtil.getProviderId(token);
 
-		User user = userRepository.findByProviderId(providerId)
-			.orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+		User user = userRepository.findByuIdx(Long.valueOf(providerId)).orElse(null);
+
+		if (user == null) {
+			return;
+		}
 
 		UserDTO userDTO = UserDTO.builder()
-			.id(user.getId())
-			.name(user.getName())
-			.email(user.getEmail())
+			.id(user.getIdx())
+			.nickname(user.getNickname())
+			.uId(user.getUId())
 			.providerId(providerId)
 			.build();
 
-		CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
-		Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null,
-			customOAuth2User.getAuthorities());
-
-		SecurityContextHolder.getContext().setAuthentication(authToken);
+		CustomOAuth2User customUser = new CustomOAuth2User(userDTO, false);
+		Authentication auth = new UsernamePasswordAuthenticationToken(customUser, null, customUser.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 }

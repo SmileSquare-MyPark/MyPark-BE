@@ -44,18 +44,6 @@ public class JWTUtil {
 			.get("providerId", String.class);
 	}
 
-	public long getRemainingTime(String token) {
-		Date expiration = Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload()
-			.getExpiration();
-
-		long now = System.currentTimeMillis();
-		return (expiration.getTime() - now) / 1000;
-	}
-
 	public Date getExpiration(String token) {
 		return Jwts.parser()
 			.setSigningKey(secretKey)
@@ -95,16 +83,16 @@ public class JWTUtil {
 	}
 
 	public TokenDTO generateTokens(String providerId) {
-		return TokenDTO.of(
-			createJwt(providerId, "ROLE_USER", "access", accessExpiration),
-			createJwt(providerId, "ROLE_USER", "refresh", refreshExpiration)
-		);
+		String access = createJwt(providerId, "ROLE_USER", "access", accessExpiration);
+		String refresh = createJwt(providerId, "ROLE_USER", "refresh", refreshExpiration);
+
+		return TokenDTO.of(access, refresh, accessExpiration, refreshExpiration);
 	}
 
 	public TokenDTO generateTempTokens(String providerId) {
-		return TokenDTO.of(
-			createJwt(providerId, "ROLE_USER", "access", tempExpiration),
-			createJwt(providerId, "ROLE_USER", "refresh", tempExpiration)
-		);
+		String access = createJwt(providerId, "ROLE_USER", "access", tempExpiration);
+		String refresh = createJwt(providerId, "ROLE_USER", "refresh", tempExpiration);
+
+		return TokenDTO.of(access, refresh, tempExpiration, tempExpiration);
 	}
 }

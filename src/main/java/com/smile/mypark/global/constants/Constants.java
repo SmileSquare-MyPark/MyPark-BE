@@ -12,6 +12,7 @@ public final class Constants {
 		"/v3/api-docs/**",
 		"/swagger-ui/**",
 		"/oauth2/authorization/**",
-		"/api/v1/users/register"
+		"/api/v1/users/register",
+		"/api/v1/users/login"
 	);
 }

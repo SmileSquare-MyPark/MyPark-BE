@@ -2,14 +2,15 @@ package com.smile.mypark.global.auth.handler;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
 import com.smile.mypark.global.auth.dto.CustomOAuth2User;
 import com.smile.mypark.global.auth.dto.TokenDTO;
-import com.smile.mypark.global.auth.util.CookieUtil;
+import com.smile.mypark.global.auth.util.ErrorResponseUtil;
 import com.smile.mypark.global.auth.util.JWTUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,13 +19,12 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-	@Value("${app.redirect-url}")
-	private String webRedirectUrl;
-
 	private final JWTUtil jwtUtil;
+	private final ObjectMapper objectMapper;
 
-	public CustomSuccessHandler(JWTUtil jwtUtil) {
+	public CustomSuccessHandler(JWTUtil jwtUtil, ObjectMapper objectMapper) {
 		this.jwtUtil = jwtUtil;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -33,29 +33,19 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 		CustomOAuth2User customUserDetails = (CustomOAuth2User)authentication.getPrincipal();
 
-		if (customUserDetails.isFirstLogin()) {
-			String redirectUrl = "/register" + "?providerId=" + customUserDetails.getProviderId()
-				+ "&nickname=" + customUserDetails.getName();
-			response.sendRedirect(redirectUrl);
+		if (customUserDetails == null || customUserDetails.getProviderId() == null) {
+			ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._UNAUTHORIZED);
 			return;
 		}
 
 		String providerId = customUserDetails.getProviderId();
-
 		TokenDTO tokenDTO = jwtUtil.generateTokens(providerId);
-		String redirectUrl = generateWebToken(response, tokenDTO);
 
-		response.sendRedirect(redirectUrl);
-	}
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.setStatus(HttpServletResponse.SC_OK);
 
-	private String generateWebToken(HttpServletResponse response, TokenDTO tokenDTO) {
-		long refreshTokenExpirationTime = jwtUtil.getExpiration(tokenDTO.getRefreshToken()).getTime();
-
-		response.addCookie(
-			CookieUtil.createCookie("accessToken", tokenDTO.getAccessToken(), refreshTokenExpirationTime));
-		response.addCookie(
-			CookieUtil.createCookie("refreshToken", tokenDTO.getRefreshToken(), refreshTokenExpirationTime));
-
-		return webRedirectUrl;
+		String json = objectMapper.writeValueAsString(tokenDTO);
+		response.getWriter().write(json);
 	}
 }

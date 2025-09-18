@@ -4,12 +4,9 @@ import java.util.List;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.smile.mypark.global.constants.Constants;
-import com.smile.mypark.global.interceptor.AuthUserArgumentResolver;
-import com.smile.mypark.global.interceptor.JWTInterceptor;
+import com.smile.mypark.global.auth.util.AuthUserArgumentResolver;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,12 +19,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
 		resolvers.add(authUserArgumentResolver);
-	}
-
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(new JWTInterceptor())
-			.addPathPatterns("/**")
-			.excludePathPatterns(Constants.NO_NEED_FILTER_URLS);
 	}
 }

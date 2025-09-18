@@ -15,7 +15,6 @@ import com.smile.mypark.domain.user.repository.UserRepository;
 import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
 import com.smile.mypark.global.apipayload.exception.GeneralException;
 import com.smile.mypark.global.auth.dto.TokenDTO;
-import com.smile.mypark.global.auth.util.CookieUtil;
 import com.smile.mypark.global.auth.util.JWTUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void login(LoginRequestDTO request, HttpServletResponse response) {
+	public TokenDTO login(LoginRequestDTO request, HttpServletResponse response) {
 		User user = userRepository.findByuId(request.getUId())
 			.orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
 
@@ -69,10 +68,10 @@ public class UserServiceImpl implements UserService {
 
 		TokenDTO tokenDTO = jwtUtil.generateTokens(String.valueOf(user.getUIdx()));
 
-		response.addCookie(
-			CookieUtil.createCookie("accessToken", tokenDTO.getAccessToken(), tokenDTO.getAccessTokenExpiration()));
-		response.addCookie(
-			CookieUtil.createCookie("refreshToken", tokenDTO.getRefreshToken(), tokenDTO.getRefreshTokenExpiration()));
+		return TokenDTO.builder()
+			.accessToken(tokenDTO.getAccessToken())
+			.refreshToken(tokenDTO.getRefreshToken())
+			.build();
 	}
 
 	@Override

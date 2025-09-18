@@ -12,6 +12,7 @@ import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
 import com.smile.mypark.domain.user.service.UserService;
 import com.smile.mypark.global.annotation.AuthUser;
 import com.smile.mypark.global.apipayload.ApiResponse;
+import com.smile.mypark.global.auth.dto.TokenDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,9 +37,8 @@ public class UserController {
 
 	@Operation(summary = "로그인", description = "사용자 로그인 API")
 	@PostMapping("/login")
-	public ApiResponse<?> login(@RequestBody @Valid LoginRequestDTO request, HttpServletResponse response) {
-		userService.login(request, response);
-		return ApiResponse.onSuccess("로그인 성공");
+	public ApiResponse<TokenDTO> login(@RequestBody @Valid LoginRequestDTO request, HttpServletResponse response) {
+		return ApiResponse.onSuccess(userService.login(request, response));
 	}
 
 	@Operation(summary = "유저 조회", description = "유저 정보를 조회하는 API")

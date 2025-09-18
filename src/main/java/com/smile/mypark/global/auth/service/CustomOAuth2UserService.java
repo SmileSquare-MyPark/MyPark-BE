@@ -46,10 +46,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		User userEntity;
 		if (existData.isEmpty()) {
 
-			return new CustomOAuth2User(UserDTO.builder()
-				.providerId(providerId)
-				.nickname(oAuth2Response.getName())
-				.build(), true);
+			return new CustomOAuth2User(
+				UserDTO.builder()
+					.providerId(providerId)
+					.nickname(oAuth2Response.getName())
+					.build()
+			);
 		} else {
 
 			userEntity = existData.get();
@@ -62,6 +64,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			.providerId(providerId)
 			.build();
 
-		return new CustomOAuth2User(userDTO, false);
+		return new CustomOAuth2User(userDTO);
 	}
 }

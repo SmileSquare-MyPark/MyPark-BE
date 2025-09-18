@@ -1,9 +1,6 @@
 package com.smile.mypark.global.auth.util;
 
-import static com.smile.mypark.global.auth.util.CookieUtil.*;
-
 import java.io.IOException;
-import java.util.Map;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,23 +39,24 @@ public class JWTFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		Map<String, String> tokens = extractTokensFromCookie(request);
-
-		if (tokens.isEmpty() || tokens.get("refreshToken") == null) {
+		String authorizationHeader = request.getHeader("Authorization");
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		if (tokens.get("accessToken") == null || jwtUtil.isExpired(tokens.get("accessToken"))) {
+		String accessToken = authorizationHeader.substring(7);
+
+		if (jwtUtil.isExpired(accessToken)) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		authenticateUser(tokens.get("accessToken"));
+		authenticateUser(accessToken, request);
 		filterChain.doFilter(request, response);
 	}
 
-	private void authenticateUser(String token) {
+	private void authenticateUser(String token, HttpServletRequest request) {
 		String providerId = jwtUtil.getProviderId(token);
 
 		User user = userRepository.findByuIdx(Long.valueOf(providerId)).orElse(null);
@@ -74,8 +72,10 @@ public class JWTFilter extends OncePerRequestFilter {
 			.providerId(providerId)
 			.build();
 
-		CustomOAuth2User customUser = new CustomOAuth2User(userDTO, false);
+		CustomOAuth2User customUser = new CustomOAuth2User(userDTO);
 		Authentication auth = new UsernamePasswordAuthenticationToken(customUser, null, customUser.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(auth);
+
+		request.setAttribute("USER_ID", user.getIdx());
 	}
 }

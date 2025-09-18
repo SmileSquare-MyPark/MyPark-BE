@@ -1,4 +1,4 @@
-package com.smile.mypark.global.interceptor;
+package com.smile.mypark.global.auth.util;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

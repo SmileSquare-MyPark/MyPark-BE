@@ -7,7 +7,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 
-import com.smile.mypark.global.auth.exception.DuplicatedEmailException;
+import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
+import com.smile.mypark.global.auth.util.ErrorResponseUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,16 +22,7 @@ public class CustomFailureHandler implements AuthenticationFailureHandler {
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 		AuthenticationException exception) throws IOException {
-		String status;
 
-		if (exception instanceof DuplicatedEmailException) {
-			status = "duplicatedEmail";
-		} else {
-			status = "serverError";
-		}
-
-		String targetUrl = redirectUrl + status;
-
-		response.sendRedirect(targetUrl);
+		ErrorResponseUtil.sendErrorResponse(response, ErrorStatus._INTERNAL_SERVER_ERROR);
 	}
 }

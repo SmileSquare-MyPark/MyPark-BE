@@ -7,9 +7,8 @@ public class UserConverter {
 
 	public static UserResponseDTO toUserResponseDTO(User user) {
 		return UserResponseDTO.builder()
-			.id(user.getId())
-			.email(user.getEmail())
-			.name(user.getName())
+			.idx(user.getIdx())
+			.nickname(user.getNickname())
 			.build();
 	}
 }

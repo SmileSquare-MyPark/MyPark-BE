@@ -13,9 +13,11 @@ import com.smile.mypark.domain.user.dto.request.UserDTO;
 public class CustomOAuth2User implements OAuth2User {
 
 	private final UserDTO userDTO;
+	private final boolean firstLogin;
 
-	public CustomOAuth2User(UserDTO userDTO) {
+	public CustomOAuth2User(UserDTO userDTO, boolean firstLogin) {
 		this.userDTO = userDTO;
+		this.firstLogin = firstLogin;
 	}
 
 	@Override
@@ -40,5 +42,9 @@ public class CustomOAuth2User implements OAuth2User {
 
 	public String getProviderId() {
 		return userDTO.getProviderId();
+	}
+
+	public boolean isFirstLogin() {
+		return userDTO.getPhoneNumber() == null;
 	}
 }

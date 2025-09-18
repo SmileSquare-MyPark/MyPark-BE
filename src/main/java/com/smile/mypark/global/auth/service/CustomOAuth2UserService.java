@@ -2,7 +2,6 @@ package com.smile.mypark.global.auth.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -42,42 +41,27 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		}
 
 		String providerId = oAuth2Response.getProviderId();
+		Optional<User> existData = userRepository.findByuIdx(Long.valueOf(providerId));
 
-		Optional<User> existData = userRepository.findByProviderId(providerId);
-
+		User userEntity;
 		if (existData.isEmpty()) {
-			User userEntity = User.builder()
-				.name(oAuth2Response.getName())
-				.email(oAuth2Response.getEmail())
+
+			return new CustomOAuth2User(UserDTO.builder()
 				.providerId(providerId)
-				.build();
-
-			userRepository.save(userEntity);
-
-			UserDTO userDTO = UserDTO.builder()
-				.id(userEntity.getId())
-				.name(oAuth2Response.getName())
-				.email(oAuth2Response.getEmail())
-				.providerId(providerId)
-				.build();
-
-			return new CustomOAuth2User(userDTO);
+				.nickname(oAuth2Response.getName())
+				.build(), true);
 		} else {
 
-			User user = existData.get();
-			user.updateEmail(oAuth2Response.getEmail());
-			user.updateName(oAuth2Response.getName());
-
-			userRepository.save(user);
-
-			UserDTO userDTO = UserDTO.builder()
-				.id(user.getId())
-				.name(oAuth2Response.getName())
-				.email(oAuth2Response.getEmail())
-				.providerId(providerId)
-				.build();
-
-			return new CustomOAuth2User(userDTO);
+			userEntity = existData.get();
 		}
+
+		UserDTO userDTO = UserDTO.builder()
+			.id(userEntity.getIdx())
+			.nickname(userEntity.getNickname())
+			.uId(userEntity.getUId())
+			.providerId(providerId)
+			.build();
+
+		return new CustomOAuth2User(userDTO, false);
 	}
 }

@@ -1,9 +1,12 @@
 package com.smile.mypark.domain.user.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.smile.mypark.domain.user.dto.request.CreateUserRequestDTO;
 import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
 import com.smile.mypark.domain.user.service.UserService;
 import com.smile.mypark.global.annotation.AuthUser;
@@ -21,9 +24,16 @@ public class UserController {
 
 	private final UserService userService;
 
+	@Operation(summary = "회원가입", description = "회원가입 API")
+	@PostMapping("/register")
+	public ApiResponse<?> signUp(@RequestBody CreateUserRequestDTO request) {
+		userService.createUser(request);
+		return ApiResponse.onSuccess("회원가입 성공");
+	}
+
 	@Operation(summary = "유저 조회", description = "유저 정보를 조회하는 API")
 	@GetMapping
-	public ApiResponse<UserResponseDTO> getUser(@AuthUser Long userId) {
-		return ApiResponse.onSuccess(userService.getUser(userId));
+	public ApiResponse<UserResponseDTO> getUser(@AuthUser Long idx) {
+		return ApiResponse.onSuccess(userService.getUser(idx));
 	}
 }

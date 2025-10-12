@@ -19,6 +19,8 @@ public enum ErrorStatus implements BaseErrorCode {
 	_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER4000", "사용자를 찾을 수 없습니다."),
 	_INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "USER4001", "비밀번호가 일치하지 않습니다."),
 	_USER_ID_DUPLICATE(HttpStatus.CONFLICT, "USER4002", "이미 존재하는 아이디입니다."),
+	_USER_SERVICE_NUMBER_INVALID(HttpStatus.NOT_FOUND, "USER4003", "일치하는 회원번호가 없습니다."),
+	_USER_SERVICE_NUMBER_DUPLICATE(HttpStatus.CONFLICT, "USER4004", "이미 등록된 회원번호입니다."),
 
 	_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH4000", "인증되지 않은 사용자입니다. 로그인 후 다시 시도해주세요."),
 

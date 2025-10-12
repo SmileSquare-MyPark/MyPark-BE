@@ -54,7 +54,7 @@ public class User {
 	@Column(name = "isAgreeAlert")
 	private Boolean isAgreeAlert;
 
-	@Column(name = "u_idx")
+	@Column(name = "u_idx", unique = true)
 	private Long uIdx;
 
 	@Column(name = "u_regdate")
@@ -65,18 +65,18 @@ public class User {
 
 	@Builder
 	public User(String uId,
-				String password,
-				String nickname,
-				String kind,
-				Integer height,
-				Integer weight,
-				Integer age,
-				Integer gender,
-				Boolean isAgreePos,
-				Boolean isAgreeAlert,
-				Long uIdx,
-				LocalDateTime regDate,
-				LocalDateTime lastDate) {
+		String password,
+		String nickname,
+		String kind,
+		Integer height,
+		Integer weight,
+		Integer age,
+		Integer gender,
+		Boolean isAgreePos,
+		Boolean isAgreeAlert,
+		Long uIdx,
+		LocalDateTime regDate,
+		LocalDateTime lastDate) {
 		this.uId = uId;
 		this.password = password;
 		this.nickname = nickname;

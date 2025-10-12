@@ -38,6 +38,12 @@ public class UserServiceImpl implements UserService {
 
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 
+		if (request.getUIdx() != null) {
+			if (userRepository.existsByuIdx(request.getUIdx())) {
+				throw new GeneralException(ErrorStatus._USER_SERVICE_NUMBER_DUPLICATE);
+			}
+		}
+
 		User user = User.builder()
 			.uId(request.getUId())
 			.password(encodedPassword)
@@ -62,8 +68,14 @@ public class UserServiceImpl implements UserService {
 		User user = userRepository.findByuId(request.getUId())
 			.orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
 
-		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			throw new GeneralException(ErrorStatus._INVALID_PASSWORD);
+		if (request.getKind().equals("normal")) {
+			if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+				throw new GeneralException(ErrorStatus._INVALID_PASSWORD);
+			}
+		} else {
+			if (!request.getPassword().equals(String.valueOf(user.getUIdx()))) {
+				throw new GeneralException(ErrorStatus._USER_SERVICE_NUMBER_INVALID);
+			}
 		}
 
 		TokenDTO tokenDTO = jwtUtil.generateTokens(String.valueOf(user.getUIdx()));

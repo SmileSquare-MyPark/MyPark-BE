@@ -38,6 +38,12 @@ public class UserServiceImpl implements UserService {
 
 		String encodedPassword = passwordEncoder.encode(request.getPassword());
 
+		if (request.getUIdx() != null) {
+			if (userRepository.existsByuIdx(request.getUIdx())) {
+				throw new GeneralException(ErrorStatus._USER_SERVICE_NUMBER_DUPLICATE);
+			}
+		}
+
 		User user = User.builder()
 			.uId(request.getUId())
 			.password(encodedPassword)

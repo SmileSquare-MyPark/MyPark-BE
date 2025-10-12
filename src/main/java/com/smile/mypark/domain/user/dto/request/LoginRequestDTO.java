@@ -11,6 +11,11 @@ public class LoginRequestDTO {
 	@NotBlank(message = "아이디는 필수입니다.")
 	private String uId;
 
+	@JsonProperty("password")
 	@NotBlank(message = "비밀번호는 필수입니다.")
 	private String password;
+
+	@JsonProperty("kind")
+	@NotBlank(message = "로그인 타입 필수입니다.")
+	private String kind;
 }

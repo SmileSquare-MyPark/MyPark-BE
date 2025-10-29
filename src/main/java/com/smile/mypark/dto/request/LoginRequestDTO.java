@@ -1,4 +1,4 @@
-package com.smile.mypark.domain.user.dto.request;
+package com.smile.mypark.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import com.smile.mypark.domain.user.repository.UserRepository;
+import com.smile.mypark.repository.UserRepository;
 import com.smile.mypark.global.auth.handler.CustomAuthenticationEntryPoint;
 import com.smile.mypark.global.auth.handler.CustomFailureHandler;
 import com.smile.mypark.global.auth.handler.CustomSuccessHandler;

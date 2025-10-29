@@ -1,4 +1,4 @@
-package com.smile.mypark.domain.user.dto.response;
+package com.smile.mypark.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

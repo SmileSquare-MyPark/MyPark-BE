@@ -1,8 +1,8 @@
-package com.smile.mypark.domain.user.service;
+package com.smile.mypark.service;
 
-import com.smile.mypark.domain.user.dto.request.CreateUserRequestDTO;
-import com.smile.mypark.domain.user.dto.request.LoginRequestDTO;
-import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
+import com.smile.mypark.dto.request.CreateUserRequestDTO;
+import com.smile.mypark.dto.request.LoginRequestDTO;
+import com.smile.mypark.dto.response.UserResponseDTO;
 import com.smile.mypark.global.auth.dto.TokenDTO;
 
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,7 +1,7 @@
-package com.smile.mypark.domain.user.converter;
+package com.smile.mypark.converter;
 
-import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
-import com.smile.mypark.domain.user.entity.User;
+import com.smile.mypark.dto.response.UserResponseDTO;
+import com.smile.mypark.entity.User;
 
 public class UserConverter {
 

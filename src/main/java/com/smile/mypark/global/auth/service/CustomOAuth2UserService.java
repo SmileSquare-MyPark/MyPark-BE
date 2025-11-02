@@ -8,9 +8,9 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.smile.mypark.domain.user.dto.request.UserDTO;
-import com.smile.mypark.domain.user.entity.User;
-import com.smile.mypark.domain.user.repository.UserRepository;
+import com.smile.mypark.dto.request.UserDTO;
+import com.smile.mypark.entity.User;
+import com.smile.mypark.repository.UserRepository;
 import com.smile.mypark.global.auth.dto.CustomOAuth2User;
 import com.smile.mypark.global.auth.dto.KakaoResponseDTO;
 import com.smile.mypark.global.auth.dto.OAuth2Response;

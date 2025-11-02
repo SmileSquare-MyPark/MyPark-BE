@@ -1,4 +1,4 @@
-package com.smile.mypark.domain.user.controller;
+package com.smile.mypark.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.smile.mypark.domain.user.dto.request.CreateUserRequestDTO;
-import com.smile.mypark.domain.user.dto.request.LoginRequestDTO;
-import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
-import com.smile.mypark.domain.user.service.UserService;
+import com.smile.mypark.dto.request.CreateUserRequestDTO;
+import com.smile.mypark.dto.request.LoginRequestDTO;
+import com.smile.mypark.dto.response.UserResponseDTO;
+import com.smile.mypark.service.UserService;
 import com.smile.mypark.global.annotation.AuthUser;
 import com.smile.mypark.global.apipayload.ApiResponse;
 import com.smile.mypark.global.auth.dto.TokenDTO;

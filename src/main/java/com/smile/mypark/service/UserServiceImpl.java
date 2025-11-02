@@ -1,28 +1,25 @@
-package com.smile.mypark.domain.user.service;
+package com.smile.mypark.service;
 
-import java.time.LocalDateTime;
-
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.smile.mypark.domain.user.converter.UserConverter;
-import com.smile.mypark.domain.user.dto.request.CreateUserRequestDTO;
-import com.smile.mypark.domain.user.dto.request.LoginRequestDTO;
-import com.smile.mypark.domain.user.dto.response.UserResponseDTO;
-import com.smile.mypark.domain.user.entity.User;
-import com.smile.mypark.domain.user.repository.UserRepository;
+import com.smile.mypark.converter.UserConverter;
+import com.smile.mypark.dto.request.CreateUserRequestDTO;
+import com.smile.mypark.dto.request.LoginRequestDTO;
+import com.smile.mypark.dto.response.UserResponseDTO;
+import com.smile.mypark.entity.User;
 import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
 import com.smile.mypark.global.apipayload.exception.GeneralException;
 import com.smile.mypark.global.auth.dto.TokenDTO;
 import com.smile.mypark.global.auth.util.JWTUtil;
-
+import com.smile.mypark.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;

@@ -8,9 +8,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.smile.mypark.domain.user.dto.request.UserDTO;
-import com.smile.mypark.domain.user.entity.User;
-import com.smile.mypark.domain.user.repository.UserRepository;
+import com.smile.mypark.dto.request.UserDTO;
+import com.smile.mypark.entity.User;
+import com.smile.mypark.repository.UserRepository;
 import com.smile.mypark.global.auth.dto.CustomOAuth2User;
 import com.smile.mypark.global.constants.Constants;
 

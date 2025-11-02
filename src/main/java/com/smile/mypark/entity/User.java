@@ -1,4 +1,4 @@
-package com.smile.mypark.domain.user.entity;
+package com.smile.mypark.entity;
 
 import java.time.LocalDateTime;
 

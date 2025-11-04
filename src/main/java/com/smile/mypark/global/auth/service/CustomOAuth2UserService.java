@@ -13,6 +13,7 @@ import com.smile.mypark.entity.User;
 import com.smile.mypark.repository.UserRepository;
 import com.smile.mypark.global.auth.dto.CustomOAuth2User;
 import com.smile.mypark.global.auth.dto.KakaoResponseDTO;
+import com.smile.mypark.global.auth.dto.NaverResponseDTO;
 import com.smile.mypark.global.auth.dto.OAuth2Response;
 import com.smile.mypark.global.auth.util.JWTUtil;
 
@@ -35,6 +36,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		if (registrationId.equals("kakao")) {
 
 			oAuth2Response = new KakaoResponseDTO(oAuth2User.getAttributes());
+		} else if (registrationId.equals("naver")) {
+
+			oAuth2Response = new NaverResponseDTO(oAuth2User.getAttributes());
 		} else {
 
 			return null;

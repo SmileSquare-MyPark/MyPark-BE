@@ -1,9 +1,10 @@
-package com.smile.mypark.service;
+package com.smile.mypark.service.impl;
 
 import com.smile.mypark.dto.response.RoundingResponseDTO;
 import com.smile.mypark.dto.response.TrainingResponseDTO;
 import com.smile.mypark.repository.RoundingRepository;
 import com.smile.mypark.repository.TrainingRepository;
+import com.smile.mypark.service.ResultService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

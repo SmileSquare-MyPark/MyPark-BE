@@ -1,7 +1,8 @@
-package com.smile.mypark.service;
+package com.smile.mypark.service.impl;
 
 import com.smile.mypark.dto.response.CompetitionResponseDTO;
 import com.smile.mypark.repository.CompetitionRepository;
+import com.smile.mypark.service.CompetitionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

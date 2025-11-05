@@ -1,4 +1,4 @@
-package com.smile.mypark.service;
+package com.smile.mypark.service.impl;
 
 import com.smile.mypark.converter.UserConverter;
 import com.smile.mypark.dto.request.CreateUserRequestDTO;
@@ -10,6 +10,7 @@ import com.smile.mypark.global.apipayload.exception.GeneralException;
 import com.smile.mypark.global.auth.dto.TokenDTO;
 import com.smile.mypark.global.auth.util.JWTUtil;
 import com.smile.mypark.repository.UserRepository;
+import com.smile.mypark.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

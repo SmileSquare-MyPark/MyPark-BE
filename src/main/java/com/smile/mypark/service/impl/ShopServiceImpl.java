@@ -1,7 +1,8 @@
-package com.smile.mypark.service;
+package com.smile.mypark.service.impl;
 
 import com.smile.mypark.dto.response.ShopResponseDTO;
 import com.smile.mypark.repository.ShopRepository;
+import com.smile.mypark.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -19,6 +19,9 @@ public class ShopResponseDTO {
 	@Schema(description = "매장 정보")
 	public static class ShopInfo {
 
+		@Schema(description = "매장 코드", example = "SHOP001")
+		private String shopCode;
+
 		@Schema(description = "매장 이름", example = "강남점")
 		private String shopName;
 

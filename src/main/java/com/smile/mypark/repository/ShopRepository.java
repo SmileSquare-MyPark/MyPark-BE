@@ -166,6 +166,7 @@ public class ShopRepository {
 	 */
 	private ShopResponseDTO.ShopInfo convertToShopInfo(ShopRow shopRow) {
 		return ShopResponseDTO.ShopInfo.builder()
+				.shopCode(shopRow.shopCode())
 				.shopName(shopRow.shopName())
 				.address1(shopRow.address1())
 				.address2(shopRow.address2())

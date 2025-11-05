@@ -119,6 +119,46 @@ public class ShopRepository {
 	}
 
 	/**
+	 * 매장을 찜하기
+	 *
+	 * @param userId 사용자 ID
+	 * @param shopCode 매장 코드
+	 * @return 삽입된 행의 수
+	 */
+	public int likeShop(Long userId, String shopCode) {
+		log.debug("매장 찜하기 시작 - userId: {}, shopCode: {}", userId, shopCode);
+		try {
+			String sql = "INSERT INTO TB_USER_SHOP_LIKE (user_id, shop_id) VALUES (?, ?)";
+			int result = jdbcTemplate.update(sql, userId, shopCode);
+			log.debug("매장 찜하기 완료 - userId: {}, shopCode: {}", userId, shopCode);
+			return result;
+		} catch (Exception e) {
+			log.error("매장 찜하기 중 오류 발생 - userId: {}, shopCode: {}", userId, shopCode, e);
+			throw new RuntimeException("매장 찜하기 중 오류가 발생했습니다.", e);
+		}
+	}
+
+	/**
+	 * 매장 찜 취소
+	 *
+	 * @param userId 사용자 ID
+	 * @param shopCode 매장 코드
+	 * @return 삭제된 행의 수
+	 */
+	public int unlikeShop(Long userId, String shopCode) {
+		log.debug("매장 찜 취소 시작 - userId: {}, shopCode: {}", userId, shopCode);
+		try {
+			String sql = "DELETE FROM TB_USER_SHOP_LIKE WHERE user_id = ? AND shop_id = ?";
+			int result = jdbcTemplate.update(sql, userId, shopCode);
+			log.debug("매장 찜 취소 완료 - userId: {}, shopCode: {}", userId, shopCode);
+			return result;
+		} catch (Exception e) {
+			log.error("매장 찜 취소 중 오류 발생 - userId: {}, shopCode: {}", userId, shopCode, e);
+			throw new RuntimeException("매장 찜 취소 중 오류가 발생했습니다.", e);
+		}
+	}
+
+	/**
 	 * ShopRow를 ShopInfo로 변환
 	 *
 	 * @param shopRow 매장 row 데이터

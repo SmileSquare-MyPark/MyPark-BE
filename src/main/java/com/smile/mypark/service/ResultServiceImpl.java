@@ -1,6 +1,8 @@
 package com.smile.mypark.service;
 
+import com.smile.mypark.dto.response.RoundingResponseDTO;
 import com.smile.mypark.dto.response.TrainingResponseDTO;
+import com.smile.mypark.repository.RoundingRepository;
 import com.smile.mypark.repository.TrainingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,9 +12,10 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TrainingServiceImpl implements TrainingService {
+public class ResultServiceImpl implements ResultService {
 
 	private final TrainingRepository trainingRepository;
+    private final RoundingRepository roundingRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -22,4 +25,17 @@ public class TrainingServiceImpl implements TrainingService {
 				.trainings(trainings)
 				.build();
 	}
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoundingResponseDTO getRoundingResults(Long userId) {
+
+        Integer totalRoundCount = roundingRepository.countRoundingByUserId(userId);
+        List<RoundingResponseDTO.RoundingInfo> roundings = roundingRepository.findRoundingInfoByUserId(userId);
+
+        return RoundingResponseDTO.builder()
+                .totalRoundCount(totalRoundCount)
+                .roundings(roundings)
+                .build();
+    }
 }

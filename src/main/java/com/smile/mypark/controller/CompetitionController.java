@@ -19,10 +19,7 @@ public class CompetitionController {
 
     private final CompetitionService competitionService;
 
-    @Operation(
-            summary = "대회 탭 조회",
-            description = "진행 중인 대회와 종료된 대회의 정보를 조회합니다. 사용자의 참여 여부, 타수, 순위 정보를 포함합니다."
-    )
+    @Operation(summary = "대회 탭 조회", description = "진행 중인 대회와 종료된 대회의 정보를 조회")
     @GetMapping
     public ApiResponse<CompetitionResponseDTO> getCompetition(@AuthUser Long userId) {
         return ApiResponse.onSuccess(competitionService.getCompetition(userId));

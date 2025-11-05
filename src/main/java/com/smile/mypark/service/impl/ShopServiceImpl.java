@@ -32,4 +32,16 @@ public class ShopServiceImpl implements ShopService {
 				.shops(shops)
 				.build();
 	}
+
+	@Override
+	@Transactional
+	public void likeShop(Long userId, String shopCode) {
+		shopRepository.likeShop(userId, shopCode);
+	}
+
+	@Override
+	@Transactional
+	public void unlikeShop(Long userId, String shopCode) {
+		shopRepository.unlikeShop(userId, shopCode);
+	}
 }

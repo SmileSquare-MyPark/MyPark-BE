@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,5 +30,25 @@ public class ShopController {
 		}
 
 		return ApiResponse.onSuccess(shopService.getAllShops(userId));
+	}
+
+	@Operation(summary = "매장 찜하기", description = "매장을 찜 목록에 추가합니다")
+	@PostMapping("/{shopCode}/like")
+	public ApiResponse<Void> likeShop(
+			@AuthUser Long userId,
+			@Parameter(description = "매장 코드")
+            @PathVariable String shopCode) {
+		shopService.likeShop(userId, shopCode);
+		return ApiResponse.onSuccess(null);
+	}
+
+	@Operation(summary = "매장 찜 취소", description = "매장을 찜 목록에서 제거합니다")
+	@DeleteMapping("/{shopCode}/like")
+	public ApiResponse<Void> unlikeShop(
+			@AuthUser Long userId,
+			@Parameter(description = "매장 코드")
+            @PathVariable String shopCode) {
+		shopService.unlikeShop(userId, shopCode);
+		return ApiResponse.onSuccess(null);
 	}
 }

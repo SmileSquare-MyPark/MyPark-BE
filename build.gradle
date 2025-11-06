@@ -55,7 +55,7 @@ tasks.named('test') {
 
 jib {
 	from {
-		image = 'openjdk:17'
+		image = 'eclipse-temurin:17-jdk'
 		platforms {
 			platform {
 				architecture = 'amd64'

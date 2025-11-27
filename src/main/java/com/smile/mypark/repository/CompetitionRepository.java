@@ -19,7 +19,6 @@ import java.util.List;
 public class CompetitionRepository {
 
     private final JdbcTemplate jdbcTemplate;
-
     private static final int ONGOING_STATUS = 0;
     private static final int COMPLETED_STATUS = 1;
     private static final int MIN_VALID_SCORE = 18;
@@ -32,7 +31,9 @@ public class CompetitionRepository {
             rs.getString("description"),
             rs.getString("prizeDescription"),
             rs.getInt("joinplayer"),
-            rs.getInt("isend")
+            rs.getInt("isend"),
+            rs.getTimestamp("startDate") != null ? rs.getTimestamp("startDate").toLocalDateTime() : null,
+            rs.getTimestamp("endDate") != null ? rs.getTimestamp("endDate").toLocalDateTime() : null
     );
 
     private static final RowMapper<PlayerScoreRow> PLAYER_SCORE_ROW_MAPPER = (rs, rowNum) -> new PlayerScoreRow(
@@ -40,19 +41,17 @@ public class CompetitionRepository {
             rs.getInt("user_rank")
     );
 
-    private static final String SELECT_CHAMPIONSHIPS = """
-            SELECT seq, roomname, summary, description, prizeDescription, joinplayer, isend
+    private static final String SELECT_ALL_CHAMPIONSHIPS = """
+            SELECT seq, roomname, summary, description, prizeDescription, joinplayer, isend, startDate, endDate
             FROM TB_CHAMPIONSHIP
-            WHERE isend = ?
             ORDER BY seq DESC
             OFFSET ? ROWS
             FETCH NEXT ? ROWS ONLY
             """;
 
-    private static final String COUNT_CHAMPIONSHIPS = """
+    private static final String COUNT_ALL_CHAMPIONSHIPS = """
             SELECT COUNT(*)
             FROM TB_CHAMPIONSHIP
-            WHERE isend = ?
             """;
 
     private static final String SELECT_USER_SCORE_AND_RANK = """
@@ -76,62 +75,22 @@ public class CompetitionRepository {
             """.formatted(MIN_VALID_SCORE, MAX_VALID_SCORE, MIN_VALID_SCORE, MAX_VALID_SCORE);
 
     /**
-     * 사용자의 대회 정보를 페이징 조회
+     * 모든 대회 정보를 최신순으로 페이징 조회
      *
      * @param userId 사용자 ID
      * @param pageable 페이징 정보
-     * @return 대회 응답 DTO 페이지
+     * @return 대회 정보 페이지
      */
-    public Page<CompetitionResponseDTO> findCompetitionData(Long userId, Pageable pageable) {
+    public Page<CompetitionResponseDTO.CompetitionInfo> findCompetitionData(Long userId, Pageable pageable) {
         log.debug("대회 정보 조회 시작 - userId: {}, page: {}, size: {}", userId, pageable.getPageNumber(), pageable.getPageSize());
 
         try {
             int offset = (int) pageable.getOffset();
             int pageSize = pageable.getPageSize();
 
-            List<CompetitionResponseDTO.CompetitionInfo> ongoingCompetitions = findChampionshipsInfo(
-                    userId, ONGOING_STATUS, offset, pageSize
-            );
+            List<ChampionshipRow> championships = findAllChampionships(offset, pageSize);
 
-            List<CompetitionResponseDTO.CompetitionInfo> completedCompetitions = findChampionshipsInfo(
-                    userId, COMPLETED_STATUS, offset, pageSize
-            );
-
-            long totalCount = countChampionships(ONGOING_STATUS) + countChampionships(COMPLETED_STATUS);
-
-            List<CompetitionResponseDTO> results = List.of(
-                    CompetitionResponseDTO.builder()
-                            .ongoingCompetitions(ongoingCompetitions)
-                            .completedCompetitions(completedCompetitions)
-                            .build()
-            );
-
-            log.debug("대회 정보 조회 완료 - userId: {}, total: {}", userId, totalCount);
-            return new PageImpl<>(results, pageable, totalCount);
-
-        } catch (Exception e) {
-            log.error("대회 정보 조회 중 오류 발생 - userId: {}", userId, e);
-            throw new RuntimeException("대회 정보 조회 중 오류가 발생했습니다.", e);
-        }
-    }
-
-    /**
-     * 특정 상태의 대회 정보를 여러 개 조회
-     *
-     * @param userId 사용자 ID
-     * @param status 대회 상태 (0: 진행중, 1: 종료)
-     * @param offset 시작 위치
-     * @param limit 조회 개수
-     * @return 대회 정보 리스트
-     */
-    private List<CompetitionResponseDTO.CompetitionInfo> findChampionshipsInfo(Long userId, int status, int offset, int limit) {
-        String statusName = status == ONGOING_STATUS ? "진행중" : "종료";
-        log.debug("{} 대회 조회 - userId: {}, offset: {}, limit: {}", statusName, userId, offset, limit);
-
-        try {
-            List<ChampionshipRow> championships = findChampionships(status, offset, limit);
-
-            return championships.stream()
+            List<CompetitionResponseDTO.CompetitionInfo> results = championships.stream()
                     .map(championship -> {
                         PlayerScoreRow playerScore = findUserScoreAndRank(championship.seq(), userId);
 
@@ -144,50 +103,53 @@ public class CompetitionRepository {
                                 .participantCount(championship.joinplayer())
                                 .userScore(playerScore != null ? playerScore.totalScore() : null)
                                 .userRank(playerScore != null ? playerScore.userRank() : null)
-                                .isOngoing(status == ONGOING_STATUS)
+                                .isOngoing(championship.isend() == ONGOING_STATUS)
+                                .startDate(championship.startDate())
+                                .endDate(championship.endDate())
                                 .build();
                     })
                     .toList();
 
+            long totalCount = countAllChampionships();
+
+            log.debug("대회 정보 조회 완료 - userId: {}, total: {}", userId, totalCount);
+            return new PageImpl<>(results, pageable, totalCount);
+
         } catch (Exception e) {
-            log.error("{} 대회 조회 실패 - userId: {}", statusName, userId, e);
-            return List.of();
+            log.error("대회 정보 조회 중 오류 발생 - userId: {}", userId, e);
+            throw new RuntimeException("대회 정보 조회 중 오류가 발생했습니다.", e);
         }
     }
 
     /**
-     * 특정 상태의 대회를 여러 개 조회
+     * 모든 대회를 조회 (최신순)
      *
-     * @param status 대회 상태 (0: 진행중, 1: 종료)
      * @param offset 시작 위치
      * @param limit 조회 개수
      * @return 대회 정보 리스트
      */
-    private List<ChampionshipRow> findChampionships(int status, int offset, int limit) {
-        String statusName = status == ONGOING_STATUS ? "진행중" : "종료";
-
-        log.debug("{} 대회 기본 정보 조회 - status: {}, offset: {}, limit: {}", statusName, status, offset, limit);
+    private List<ChampionshipRow> findAllChampionships(int offset, int limit) {
+        log.debug("전체 대회 조회 (최신순) - offset: {}, limit: {}", offset, limit);
 
         try {
-            return jdbcTemplate.query(SELECT_CHAMPIONSHIPS, CHAMPIONSHIP_ROW_MAPPER, status, offset, limit);
+            return jdbcTemplate.query(SELECT_ALL_CHAMPIONSHIPS, CHAMPIONSHIP_ROW_MAPPER, offset, limit);
         } catch (Exception e) {
-            log.warn("{} 대회 조회 실패 - status: {}", statusName, status, e);
+            log.warn("전체 대회 조회 실패", e);
             return List.of();
         }
     }
 
     /**
-     * 특정 상태의 대회 개수를 조회
+     * 전체 대회 개수를 조회
      *
-     * @param status 대회 상태 (0: 진행중, 1: 종료)
-     * @return 대회 개수
+     * @return 전체 대회 개수
      */
-    private long countChampionships(int status) {
+    private long countAllChampionships() {
         try {
-            Integer count = jdbcTemplate.queryForObject(COUNT_CHAMPIONSHIPS, Integer.class, status);
+            Integer count = jdbcTemplate.queryForObject(COUNT_ALL_CHAMPIONSHIPS, Integer.class);
             return count != null ? count : 0;
         } catch (Exception e) {
-            log.warn("대회 개수 조회 실패 - status: {}", status, e);
+            log.warn("전체 대회 개수 조회 실패", e);
             return 0;
         }
     }
@@ -222,7 +184,9 @@ public class CompetitionRepository {
             String description,
             String prizeDescription,
             Integer joinplayer,
-            Integer isend
+            Integer isend,
+            java.time.LocalDateTime startDate,
+            java.time.LocalDateTime endDate
     ) {
     }
 

@@ -4,18 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @Schema(description = "대회 탭 응답 DTO")
 public class CompetitionResponseDTO {
 
-    @Schema(description = "진행 중인 대회 목록")
-    private List<CompetitionInfo> ongoingCompetitions;
+    @Schema(description = "진행 중인 대회 정보")
+    private CompetitionInfo ongoingCompetition;
 
-    @Schema(description = "종료된 대회 목록")
-    private List<CompetitionInfo> completedCompetitions;
+    @Schema(description = "종료된 대회 정보")
+    private CompetitionInfo completedCompetition;
 
     @Getter
     @Builder
@@ -48,5 +48,11 @@ public class CompetitionResponseDTO {
 
         @Schema(description = "대회 진행 여부", example = "true")
         private Boolean isOngoing;
+
+        @Schema(description = "대회 시작일", example = "2025-01-01T00:00:00")
+        private LocalDateTime startDate;
+
+        @Schema(description = "대회 종료일", example = "2025-01-31T23:59:59")
+        private LocalDateTime endDate;
     }
 }

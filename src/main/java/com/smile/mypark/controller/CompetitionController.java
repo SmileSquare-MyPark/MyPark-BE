@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "[ 대회 탭 ]")
@@ -27,12 +25,12 @@ public class CompetitionController {
 
     @Operation(summary = "대회 탭 조회", description = "진행 중인 대회와 종료된 대회의 정보를 조회")
     @GetMapping
-    public ApiResponse<List<CompetitionResponseDTO>> getCompetitions(
+    public ApiResponse<Page<CompetitionResponseDTO.CompetitionInfo>> getCompetitions(
         @AuthUser Long userId,
         @RequestParam(value = "page", defaultValue = "0") int page,
         @RequestParam(value = "size", defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<CompetitionResponseDTO> results = competitionService.getCompetitions(userId, pageable);
-        return ApiResponse.onSuccess(results.getContent());
+        Page<CompetitionResponseDTO.CompetitionInfo> results = competitionService.getCompetitions(userId, pageable);
+        return ApiResponse.onSuccess(results);
     }
 }

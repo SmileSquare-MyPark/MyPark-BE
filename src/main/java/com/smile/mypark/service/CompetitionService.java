@@ -5,5 +5,5 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CompetitionService {
-    Page<CompetitionResponseDTO> getCompetitions(Long userId, Pageable pageable);
+    Page<CompetitionResponseDTO.CompetitionInfo> getCompetitions(Long userId, Pageable pageable);
 }

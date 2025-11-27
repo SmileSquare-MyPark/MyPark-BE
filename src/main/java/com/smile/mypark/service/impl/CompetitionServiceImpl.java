@@ -17,7 +17,7 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<CompetitionResponseDTO> getCompetitions(Long userId, Pageable pageable) {
+    public Page<CompetitionResponseDTO.CompetitionInfo> getCompetitions(Long userId, Pageable pageable) {
         return competitionRepository.findCompetitionData(userId, pageable);
     }
 }

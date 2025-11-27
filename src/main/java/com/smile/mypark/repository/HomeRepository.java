@@ -22,7 +22,6 @@ public class HomeRepository {
     private static final int RECENT_ROUNDS_COUNT = 5;
     private static final int DEFAULT_SCORE = 0;
     private static final double DEFAULT_AVG_SCORE = 0.0;
-    private static final String EMPTY_STRING = "";
 
     private static final RowMapper<UserRow> USER_ROW_MAPPER = (rs, rowNum) -> new UserRow(
             rs.getString("u_nick"),
@@ -35,10 +34,6 @@ public class HomeRepository {
             rs.getInt("eagle")
     );
 
-    private static final RowMapper<NoticeRow> NOTICE_ROW_MAPPER = (rs, rowNum) -> new NoticeRow(
-            rs.getString("b_title"),
-            rs.getString("b_content")
-    );
 
     private static final String SELECT_USER_INFO = """
             SELECT u_nick, u_regdate
@@ -71,11 +66,6 @@ public class HomeRepository {
             ) AS recent_rounds
             """;
 
-    private static final String SELECT_LATEST_NOTICE = """
-            SELECT TOP 1 b_title, b_content
-            FROM TB_Shop_Board
-            ORDER BY b_regdate DESC
-            """;
 
     /**
      * 사용자 홈 탭 데이터를 조회
@@ -92,7 +82,6 @@ public class HomeRepository {
             StatRow stats = findUserStats(userId);
             Integer bestScore = findBestScore(userId);
             Double recentAvgScore = findRecentAvgScore(userId);
-            NoticeRow notice = findLatestNotice();
 
             long experienceYears = ChronoUnit.YEARS.between(user.uRegdate(), LocalDate.now());
 
@@ -105,8 +94,6 @@ public class HomeRepository {
                     .bestScore(bestScore)
                     .experienceYears((int) experienceYears)
                     .recentAvgScore(recentAvgScore)
-                    .noticeTitle(notice.bTitle())
-                    .noticeContent(notice.bContent())
                     .build();
 
             log.debug("홈 탭 데이터 조회 완료 - userId: {}", userId);
@@ -176,22 +163,6 @@ public class HomeRepository {
         ).orElse(DEFAULT_AVG_SCORE);
     }
 
-    /**
-     * 최신 공지사항을 조회
-     *
-     * @return 최신 공지사항 (결과 없으면 빈 문자열로 초기화된 공지사항)
-     */
-    private NoticeRow findLatestNotice() {
-        log.debug("최신 공지사항 조회");
-        try {
-            return jdbcTemplate.queryForObject(SELECT_LATEST_NOTICE, NOTICE_ROW_MAPPER);
-        } catch (EmptyResultDataAccessException e) {
-            log.warn("공지사항 없음 - 기본값 반환");
-            return new NoticeRow(EMPTY_STRING, EMPTY_STRING);
-        }
-    }
-
     private record UserRow(String uNickname, LocalDate uRegdate) {}
     private record StatRow(int holeinone, int albatross, int eagle) {}
-    private record NoticeRow(String bTitle, String bContent) {}
 }

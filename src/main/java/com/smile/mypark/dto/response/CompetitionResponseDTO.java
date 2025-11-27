@@ -4,16 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 @Schema(description = "대회 탭 응답 DTO")
 public class CompetitionResponseDTO {
 
-    @Schema(description = "진행 중인 대회 정보")
-    private CompetitionInfo ongoingCompetition;
+    @Schema(description = "진행 중인 대회 목록")
+    private List<CompetitionInfo> ongoingCompetitions;
 
-    @Schema(description = "종료된 대회 정보")
-    private CompetitionInfo completedCompetition;
+    @Schema(description = "종료된 대회 목록")
+    private List<CompetitionInfo> completedCompetitions;
 
     @Getter
     @Builder

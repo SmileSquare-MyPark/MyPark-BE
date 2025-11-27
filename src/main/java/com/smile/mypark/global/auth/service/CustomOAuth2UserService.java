@@ -1,29 +1,30 @@
 package com.smile.mypark.global.auth.service;
 
-import java.util.Optional;
-
+import com.smile.mypark.dto.request.UserDTO;
+import com.smile.mypark.entity.User;
+import com.smile.mypark.global.apipayload.code.status.ErrorStatus;
+import com.smile.mypark.global.apipayload.exception.GeneralException;
+import com.smile.mypark.global.auth.dto.*;
+import com.smile.mypark.global.auth.util.JWTUtil;
+import com.smile.mypark.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.smile.mypark.dto.request.UserDTO;
-import com.smile.mypark.entity.User;
-import com.smile.mypark.repository.UserRepository;
-import com.smile.mypark.global.auth.dto.CustomOAuth2User;
-import com.smile.mypark.global.auth.dto.KakaoResponseDTO;
-import com.smile.mypark.global.auth.dto.NaverResponseDTO;
-import com.smile.mypark.global.auth.dto.OAuth2Response;
-import com.smile.mypark.global.auth.util.JWTUtil;
+import java.util.Optional;
 
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
 	public CustomOAuth2UserService(UserRepository userRepository, JWTUtil jwtUtil) {
 		this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
 	}
 
 	@Override
@@ -70,4 +71,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		return new CustomOAuth2User(userDTO);
 	}
+
+    @Transactional
+    public TokenDTO reissue(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+
+        TokenDTO tokenDTO = jwtUtil.generateTokens(String.valueOf(user.getUIdx()));
+
+        return TokenDTO.builder()
+                .accessToken(tokenDTO.getAccessToken())
+                .refreshToken(tokenDTO.getRefreshToken())
+                .build();
+    }
 }

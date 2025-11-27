@@ -32,10 +32,4 @@ public class HomeTapResponseDTO {
 
     @Schema(description = "최근 5경기 평균 타수", example = "74")
     private Double recentAvgScore;
-
-    @Schema(description = "공지사항 제목", example = "MyPark 업데이트 안내")
-    private String noticeTitle;
-
-    @Schema(description = "공지사항 내용", example = "MyPark 업데이트 내용")
-    private String noticeContent;
 }

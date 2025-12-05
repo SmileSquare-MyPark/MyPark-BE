@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -45,5 +46,8 @@ public class RoundingResponseDTO {
 
 		@Schema(description = "점수 통계", example = "2")
 		private Integer score;
+
+		@Schema(description = "라운딩 날짜", example = "2025-01-01T00:00:00")
+		private LocalDateTime roundingDate;
 	}
 }

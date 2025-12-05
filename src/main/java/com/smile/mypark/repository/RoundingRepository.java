@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -17,16 +19,22 @@ public class RoundingRepository {
 
 	private final JdbcTemplate jdbcTemplate;
 
-	private static final RowMapper<RoundingRow> ROUNDING_ROW_MAPPER = (rs, rowNum) -> new RoundingRow(
-			rs.getObject("swing_count") != null ? rs.getInt("swing_count") : null,
-			rs.getObject("average_distance") != null ? rs.getDouble("average_distance") : null,
-			rs.getObject("greeninregulation") != null ? rs.getDouble("greeninregulation") : null,
-			rs.getObject("putting_rate") != null ? rs.getDouble("putting_rate") : null,
-			rs.getString("ccidx"),
-			rs.getObject("max_distance") != null ? rs.getDouble("max_distance") : null,
-			rs.getObject("max_putting_distance") != null ? rs.getDouble("max_putting_distance") : null,
-			rs.getObject("score") != null ? rs.getInt("score") : null
-	);
+	private static final RowMapper<RoundingRow> ROUNDING_ROW_MAPPER = (rs, rowNum) -> {
+		Timestamp timestamp = rs.getTimestamp("indyt");
+		LocalDateTime roundingDate = timestamp != null ? timestamp.toLocalDateTime() : null;
+
+		return new RoundingRow(
+				rs.getObject("swing_count") != null ? rs.getInt("swing_count") : null,
+				rs.getObject("average_distance") != null ? rs.getDouble("average_distance") : null,
+				rs.getObject("greeninregulation") != null ? rs.getDouble("greeninregulation") : null,
+				rs.getObject("putting_rate") != null ? rs.getDouble("putting_rate") : null,
+				rs.getString("ccidx"),
+				rs.getObject("max_distance") != null ? rs.getDouble("max_distance") : null,
+				rs.getObject("max_putting_distance") != null ? rs.getDouble("max_putting_distance") : null,
+				rs.getObject("score") != null ? rs.getInt("score") : null,
+				roundingDate
+		);
+	};
 
 	private static final String SELECT_ROUNDING_INFO_BY_USER = """
 			SELECT
@@ -37,7 +45,8 @@ public class RoundingRepository {
 				ccidx,
 				max_distance,
 				max_putting_distance,
-				score
+				score,
+				indyt
 			FROM TB_ROUNDING_INFO
 			WHERE fk_idx = ?
 			""";
@@ -113,6 +122,7 @@ public class RoundingRepository {
 				.maxDistance(roundingRow.maxDistance())
 				.maxPuttingDistance(roundingRow.maxPuttingDistance())
 				.score(roundingRow.score())
+				.roundingDate(roundingRow.roundingDate())
 				.build();
 	}
 
@@ -124,7 +134,8 @@ public class RoundingRepository {
 			String ccIdx,
 			Double maxDistance,
 			Double maxPuttingDistance,
-			Integer score
+			Integer score,
+			LocalDateTime roundingDate
 	) {
 	}
 }

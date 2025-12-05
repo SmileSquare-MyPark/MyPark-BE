@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -36,5 +37,8 @@ public class TrainingResponseDTO {
 
 		@Schema(description = "연습 영상 파일명", example = "video_20231029_001.mp4")
 		private String videoName;
+
+		@Schema(description = "연습 날짜", example = "2025-01-01T00:00:00")
+		private LocalDateTime trainingDate;
 	}
 }

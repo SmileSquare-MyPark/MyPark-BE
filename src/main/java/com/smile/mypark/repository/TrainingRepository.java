@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -17,14 +19,20 @@ public class TrainingRepository {
 
 	private final JdbcTemplate jdbcTemplate;
 
-	private static final RowMapper<TrainingShotRow> TRAINING_SHOT_ROW_MAPPER = (rs, rowNum) -> new TrainingShotRow(
-			rs.getObject("direction_angle") != null ? rs.getDouble("direction_angle") : null,
-			rs.getObject("launch_angle") != null ? rs.getDouble("launch_angle") : null,
-			rs.getObject("ball_speed") != null ? rs.getDouble("ball_speed") : null,
-			rs.getObject("club_speed") != null ? rs.getDouble("club_speed") : null,
-			rs.getObject("distance") != null ? rs.getDouble("distance") : null,
-			rs.getString("video_name")
-	);
+	private static final RowMapper<TrainingShotRow> TRAINING_SHOT_ROW_MAPPER = (rs, rowNum) -> {
+		Timestamp timestamp = rs.getTimestamp("indyt");
+		LocalDateTime trainingDate = timestamp != null ? timestamp.toLocalDateTime() : null;
+
+		return new TrainingShotRow(
+				rs.getObject("direction_angle") != null ? rs.getDouble("direction_angle") : null,
+				rs.getObject("launch_angle") != null ? rs.getDouble("launch_angle") : null,
+				rs.getObject("ball_speed") != null ? rs.getDouble("ball_speed") : null,
+				rs.getObject("club_speed") != null ? rs.getDouble("club_speed") : null,
+				rs.getObject("distance") != null ? rs.getDouble("distance") : null,
+				rs.getString("video_name"),
+				trainingDate
+		);
+	};
 
 	private static final String SELECT_TRAINING_SHOTS_BY_USER = """
 			SELECT
@@ -33,7 +41,8 @@ public class TrainingRepository {
 				ball_speed,
 				club_speed,
 				distance,
-				video_name
+				video_name,
+				indyt
 			FROM TB_TRAINNING_SHOT
 			WHERE fk_user_id = ?
 			""";
@@ -80,6 +89,7 @@ public class TrainingRepository {
 				.clubSpeed(shotRow.clubSpeed())
 				.distance(shotRow.distance())
 				.videoName(shotRow.videoName())
+				.trainingDate(shotRow.trainingDate())
 				.build();
 	}
 
@@ -89,7 +99,8 @@ public class TrainingRepository {
 			Double ballSpeed,
 			Double clubSpeed,
 			Double distance,
-			String videoName
+			String videoName,
+			LocalDateTime trainingDate
 	) {
 	}
 }

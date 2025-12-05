@@ -49,6 +49,7 @@ public class RoundingRepository {
 				indyt
 			FROM TB_ROUNDING_INFO
 			WHERE fk_idx = ?
+			ORDER BY indyt DESC
 			""";
 
 	private static final String COUNT_ROUNDING_BY_USER = """
@@ -114,15 +115,11 @@ public class RoundingRepository {
 	 */
 	private RoundingResponseDTO.RoundingInfo convertToRoundingInfo(RoundingRow roundingRow) {
 		return RoundingResponseDTO.RoundingInfo.builder()
-				.swingCount(roundingRow.swingCount())
+				.roundingDate(roundingRow.roundingDate())
+				.score(roundingRow.score())
 				.averageDistance(roundingRow.averageDistance())
 				.greenInRegulation(roundingRow.greenInRegulation())
 				.puttingRate(roundingRow.puttingRate())
-				.ccIdx(roundingRow.ccIdx())
-				.maxDistance(roundingRow.maxDistance())
-				.maxPuttingDistance(roundingRow.maxPuttingDistance())
-				.score(roundingRow.score())
-				.roundingDate(roundingRow.roundingDate())
 				.build();
 	}
 

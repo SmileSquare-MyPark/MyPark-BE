@@ -56,9 +56,82 @@ public class ResultServiceImpl implements ResultService {
         Integer totalRoundCount = roundingRepository.countRoundingByUserId(userId);
         List<RoundingResponseDTO.RoundingInfo> roundings = roundingRepository.findRoundingInfoByUserId(userId);
 
+        RoundingResponseDTO.Summary summary = calculateSummary(roundings);
+
         return RoundingResponseDTO.builder()
                 .totalRoundCount(totalRoundCount)
+                .summary(summary)
                 .roundings(roundings)
+                .build();
+    }
+
+    /**
+     * 라운딩 데이터를 바탕으로 요약 정보 계산
+     */
+    private RoundingResponseDTO.Summary calculateSummary(List<RoundingResponseDTO.RoundingInfo> roundings) {
+        if (roundings == null || roundings.isEmpty()) {
+            return RoundingResponseDTO.Summary.builder()
+                    .score(RoundingResponseDTO.ScoreInfo.builder()
+                            .average(0)
+                            .recentAverage(0)
+                            .build())
+                    .distance(RoundingResponseDTO.DistanceInfo.builder()
+                            .average(0)
+                            .build())
+                    .greenInRegulation(RoundingResponseDTO.GreenInRegulationInfo.builder()
+                            .averageRate(0.0)
+                            .build())
+                    .putting(RoundingResponseDTO.PuttingInfo.builder()
+                            .averageRate(0.0)
+                            .build())
+                    .build();
+        }
+
+        int avgScore = (int) roundings.stream()
+                .filter(r -> r.getScore() != null)
+                .mapToInt(RoundingResponseDTO.RoundingInfo::getScore)
+                .average()
+                .orElse(0);
+
+        int recentAvgScore = (int) roundings.stream()
+                .limit(3)
+                .filter(r -> r.getScore() != null)
+                .mapToInt(RoundingResponseDTO.RoundingInfo::getScore)
+                .average()
+                .orElse(0);
+
+        int avgDistance = (int) roundings.stream()
+                .filter(r -> r.getAverageDistance() != null)
+                .mapToDouble(RoundingResponseDTO.RoundingInfo::getAverageDistance)
+                .average()
+                .orElse(0);
+
+        double avgGreenInRegulation = roundings.stream()
+                .filter(r -> r.getGreenInRegulation() != null)
+                .mapToDouble(RoundingResponseDTO.RoundingInfo::getGreenInRegulation)
+                .average()
+                .orElse(0);
+
+        double avgPuttingRate = roundings.stream()
+                .filter(r -> r.getPuttingRate() != null)
+                .mapToDouble(RoundingResponseDTO.RoundingInfo::getPuttingRate)
+                .average()
+                .orElse(0);
+
+        return RoundingResponseDTO.Summary.builder()
+                .score(RoundingResponseDTO.ScoreInfo.builder()
+                        .average(avgScore)
+                        .recentAverage(recentAvgScore)
+                        .build())
+                .distance(RoundingResponseDTO.DistanceInfo.builder()
+                        .average(avgDistance)
+                        .build())
+                .greenInRegulation(RoundingResponseDTO.GreenInRegulationInfo.builder()
+                        .averageRate(Math.round(avgGreenInRegulation * 10.0) / 10.0)
+                        .build())
+                .putting(RoundingResponseDTO.PuttingInfo.builder()
+                        .averageRate(Math.round(avgPuttingRate * 10.0) / 10.0)
+                        .build())
                 .build();
     }
 }

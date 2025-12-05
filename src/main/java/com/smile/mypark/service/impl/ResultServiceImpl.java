@@ -9,7 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,10 +23,29 @@ public class ResultServiceImpl implements ResultService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public TrainingResponseDTO getTrainingResults(Long userId) {
-		List<TrainingResponseDTO.TrainingShotInfo> trainings = trainingRepository.findTrainingShotsByUserId(userId);
+	public TrainingResponseDTO getTrainingResults(Long userId, int page, int size) {
+		List<TrainingRepository.TrainingShotInfoWithDate> trainingsWithDate =
+				trainingRepository.findTrainingShotsWithDateByUserId(userId, page, size);
+
+		Map<LocalDate, List<TrainingResponseDTO.TrainingShotInfo>> groupedByDate = trainingsWithDate.stream()
+				.collect(Collectors.groupingBy(
+						TrainingRepository.TrainingShotInfoWithDate::date,
+						Collectors.mapping(
+								TrainingRepository.TrainingShotInfoWithDate::info,
+								Collectors.toList()
+						)
+				));
+
+		List<TrainingResponseDTO.DateTrainingGroup> dateTrainingGroups = groupedByDate.entrySet().stream()
+				.map(entry -> TrainingResponseDTO.DateTrainingGroup.builder()
+						.trainingDate(entry.getKey())
+						.trainingList(entry.getValue())
+						.build())
+				.sorted((a, b) -> b.getTrainingDate().compareTo(a.getTrainingDate())) // 최신 날짜 순으로 정렬
+				.toList();
+
 		return TrainingResponseDTO.builder()
-				.trainings(trainings)
+				.trainings(dateTrainingGroups)
 				.build();
 	}
 

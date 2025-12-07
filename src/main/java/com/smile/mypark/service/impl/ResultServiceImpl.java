@@ -1,6 +1,7 @@
 package com.smile.mypark.service.impl;
 
 import com.smile.mypark.dto.response.RoundingResponseDTO;
+import com.smile.mypark.dto.response.ScoreStatisticsResponseDTO;
 import com.smile.mypark.dto.response.TrainingResponseDTO;
 import com.smile.mypark.repository.RoundingRepository;
 import com.smile.mypark.repository.TrainingRepository;
@@ -66,6 +67,12 @@ public class ResultServiceImpl implements ResultService {
 				.summary(summary)
 				.roundings(roundings)
 				.build();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public ScoreStatisticsResponseDTO getScoreStatistics(Long userId) {
+		return roundingRepository.findScoreStatistics(userId);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.smile.mypark.controller;
 
 import com.smile.mypark.dto.response.RoundingResponseDTO;
+import com.smile.mypark.dto.response.ScoreStatisticsResponseDTO;
 import com.smile.mypark.dto.response.TrainingResponseDTO;
 import com.smile.mypark.global.annotation.AuthUser;
 import com.smile.mypark.global.apipayload.ApiResponse;
@@ -34,5 +35,11 @@ public class ResultController {
 	@GetMapping("/rounding")
 	public ApiResponse<RoundingResponseDTO> getRoundingResults(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(resultService.getRoundingResults(userId));
+	}
+
+	@Operation(summary = "스코어 통계 조회", description = "사용자의 전체 스코어 타입별 통계를 조회 (홀인원, 알바트로스, 이글, 버디, 파, 보기)")
+	@GetMapping("/statistics")
+	public ApiResponse<ScoreStatisticsResponseDTO> getScoreStatistics(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(resultService.getScoreStatistics(userId));
 	}
 }

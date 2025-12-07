@@ -1,6 +1,7 @@
 package com.smile.mypark.controller;
 
 import com.smile.mypark.dto.response.RoundingResponseDTO;
+import com.smile.mypark.dto.response.ScoreStatisticsResponseDTO;
 import com.smile.mypark.dto.response.TrainingResponseDTO;
 import com.smile.mypark.global.annotation.AuthUser;
 import com.smile.mypark.global.apipayload.ApiResponse;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,15 +22,24 @@ public class ResultController {
 
 	private final ResultService resultService;
 
-	@Operation(summary = "연습 결과 조회", description = "사용자의 연습 샷 기록을 조회")
+	@Operation(summary = "연습 결과 조회", description = "사용자의 연습 샷 기록을 페이징하여 조회")
 	@GetMapping("/training")
-	public ApiResponse<TrainingResponseDTO> getTrainingResults(@AuthUser Long userId) {
-		return ApiResponse.onSuccess(resultService.getTrainingResults(userId));
+	public ApiResponse<TrainingResponseDTO> getTrainingResults(
+			@AuthUser Long userId,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		return ApiResponse.onSuccess(resultService.getTrainingResults(userId, page, size));
 	}
 
 	@Operation(summary = "라운딩 결과 조회", description = "사용자의 라운딩 기록을 조회")
 	@GetMapping("/rounding")
 	public ApiResponse<RoundingResponseDTO> getRoundingResults(@AuthUser Long userId) {
 		return ApiResponse.onSuccess(resultService.getRoundingResults(userId));
+	}
+
+	@Operation(summary = "스코어 통계 조회", description = "사용자의 전체 스코어 타입별 통계를 조회 (홀인원, 알바트로스, 이글, 버디, 파, 보기)")
+	@GetMapping("/statistics")
+	public ApiResponse<ScoreStatisticsResponseDTO> getScoreStatistics(@AuthUser Long userId) {
+		return ApiResponse.onSuccess(resultService.getScoreStatistics(userId));
 	}
 }

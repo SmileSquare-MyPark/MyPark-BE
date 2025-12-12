@@ -74,6 +74,13 @@ public class CompetitionRepository {
                 AND pi.TotalScore BETWEEN %d AND %d
             """.formatted(MIN_VALID_SCORE, MAX_VALID_SCORE, MIN_VALID_SCORE, MAX_VALID_SCORE);
 
+    private static final String CHECK_USER_PARTICIPATED = """
+            SELECT COUNT(*)
+            FROM TB_CHAMPIONSHIP_PLAYER_INFO
+            WHERE fk_room_idx = ?
+              AND fk_user_idx = ?
+            """;
+
     /**
      * 모든 대회 정보를 최신순으로 페이징 조회
      *
@@ -94,6 +101,8 @@ public class CompetitionRepository {
                     .map(championship -> {
                         PlayerScoreRow playerScore = findUserScoreAndRank(championship.seq(), userId);
 
+                        boolean participated = isUserParticipated(championship.seq(), userId);
+
                         return CompetitionResponseDTO.CompetitionInfo.builder()
                                 .championshipId(championship.seq())
                                 .title(championship.roomname())
@@ -106,6 +115,7 @@ public class CompetitionRepository {
                                 .isOngoing(championship.isend() == ONGOING_STATUS)
                                 .startDate(championship.startDate())
                                 .endDate(championship.endDate())
+                                .isParticipated(participated)
                                 .build();
                     })
                     .toList();
@@ -162,8 +172,6 @@ public class CompetitionRepository {
      * @return 사용자 점수 및 순위 (참여하지 않았으면 null)
      */
     private PlayerScoreRow findUserScoreAndRank(Long championshipId, Long userId) {
-        log.debug("사용자 점수 및 순위 조회 - championshipId: {}, userId: {}", championshipId, userId);
-
         try {
             return jdbcTemplate.queryForObject(
                     SELECT_USER_SCORE_AND_RANK,
@@ -175,6 +183,17 @@ public class CompetitionRepository {
             log.info("대회 미참여 또는 점수 없음 - championshipId: {}, userId: {}", championshipId, userId);
             return null;
         }
+    }
+
+    private boolean isUserParticipated(Long championshipId, Long userId) {
+        Integer count = jdbcTemplate.queryForObject(
+                CHECK_USER_PARTICIPATED,
+                Integer.class,
+                championshipId,
+                userId
+        );
+
+        return count != null && count > 0;
     }
 
     private record ChampionshipRow(

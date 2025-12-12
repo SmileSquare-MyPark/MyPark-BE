@@ -54,5 +54,8 @@ public class CompetitionResponseDTO {
 
         @Schema(description = "대회 종료일", example = "2025-01-31T23:59:59")
         private LocalDateTime endDate;
+
+        @Schema(description = "참여 여부", example = "true")
+        private boolean isParticipated;
     }
 }
